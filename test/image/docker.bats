@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 @test "should provide Docker client" {
-  bats_test "test" <<BATS >test.bats
+  bats_test <<BATS >test.bats
   run docker --version
   trace
 BATS
@@ -11,7 +11,7 @@ BATS
 }
 
 @test "should pass-through socket" {
-  bats_test "test" <<BATS >test.bats
+  bats_test <<BATS >test.bats
   run docker run --rm hello-world
   trace
 BATS

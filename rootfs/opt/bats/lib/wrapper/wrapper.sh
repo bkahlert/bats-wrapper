@@ -59,6 +59,13 @@ die() {
 #(TERM=xterm die 2>&1 | cat -) # no ESC
 #(TERM=xterm die > >(socat - pty | cat -)) # ESC
 
+# Creates a random string with the specified length.
+# Arguments:
+#   1 - length (default: 3)
+random_string() {
+  head /dev/urandom | LC_ALL=C.UTF-8 tr -dc A-Za-z0-9 2>/dev/null | head -c "${1:-3}"
+}
+
 # Exits with a error message if this function is called outside of
 # the execution of a test.
 require_test() {

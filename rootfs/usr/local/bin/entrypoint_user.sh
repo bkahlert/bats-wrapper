@@ -3,6 +3,7 @@
 source logr.sh
 
 # Run the specified tests concurrently and recursively using Bats.
+# Note: This method is called twice. Once without and once with `--no-tempdir-cleanup`.
 # Arguments:
 #   * - bats arguments
 bats() {
@@ -42,8 +43,6 @@ main() {
     esac
   done
 
-  [ -e "$TMPDIR" ] || mkdir -p "$TMPDIR" || die "'$TMPDIR' could not be created"
-
   echo "${esc_hpa0-}${esc_green-}▶▶${esc_reset-} ${esc_bold-}TEST RUN${esc_reset-}" >&2
   logr info "working directory: $PWD" >&2
 
@@ -57,12 +56,10 @@ main() {
   fi
 
   if [ "$highlighted_tests" = "0" ]; then
-    bats "${opts[@]+"${opts[@]}"}"
+    bats "--no-tempdir-cleanup" "${opts[@]+"${opts[@]}"}"
   else
     bats "${highlighted_tests_args[@]}" "--no-tempdir-cleanup" "${opts[@]+"${opts[@]}"}"
   fi
 }
 
 main "$@"
-
-# ./bats --jobs 12 --no-parallelize-within-files --recursive --timing --count --filter ^[Xx] test

@@ -14,7 +14,7 @@ setup() {
 }
 
 @test "should change user ID to 1000 by default" {
-  bats_test "test" <<BATS >test.bats
+  bats_test <<BATS >test.bats
   $(printf 'run printf "%b" "%b"' "$pattern" "$puid")
   trace
 BATS
@@ -23,7 +23,7 @@ BATS
 }
 
 @test "should change group ID to 1000 by default" {
-  bats_test "test" <<BATS >test.bats
+  bats_test <<BATS >test.bats
   $(printf 'run printf "%b" "%b"' "$pattern" "$pgid")
   trace
 BATS
@@ -32,7 +32,7 @@ BATS
 }
 
 @test "should change user ID to specified ID" {
-  bats_test "test" <<BATS >test.bats
+  bats_test <<BATS >test.bats
   $(printf 'run printf "%b" "%b"' "$pattern" "$puid")
   trace
 BATS
@@ -41,7 +41,7 @@ BATS
 }
 
 @test "should change group ID to specified ID" {
-  bats_test "test" <<BATS >test.bats
+  bats_test <<BATS >test.bats
   $(printf 'run printf "%b" "%b"' "$pattern" "$pgid")
   trace
 BATS

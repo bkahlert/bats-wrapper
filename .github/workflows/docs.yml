@@ -24,7 +24,7 @@ jobs:
         id: prep
         run: |
           echo ::set-output name=recordr-branch::"${{ github.ref_name }}--docs"
-          echo ::set-output name=recordr-build-dir::"build/
+          echo ::set-output name=recordr-build-dir::"build/rec"
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -32,7 +32,7 @@ jobs:
       - name: ● REC
         if: github.event_name != 'pull_request'
         id: recordr
-        uses: ./
+        uses: bkahlert/recordr@v0.2.1
         with:
           branch: ${{ steps.prep.outputs.recordr-branch }}
           build-dir: ${{ steps.prep.outputs.recordr-build-dir }}

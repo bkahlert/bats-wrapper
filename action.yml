@@ -2,8 +2,8 @@ name: 'Bats tests'
 author: 'Björn Kahlert'
 description: 'Run Bats (Bash Automated Testing System) tests'
 branding:
-  icon: 'circle'
-  color: 'red'
+  icon: 'check'
+  color: 'green'
 inputs:
   filter:
     description: 'Only run tests that match the regular expression'
@@ -13,7 +13,6 @@ inputs:
       Switch between formatters: pretty (default),
       tap (default w/o term), tap13, junit
     required: false
-    default: pretty
   gather-test-outputs-in:
     description: >
       Gather the output of failing *and* passing tests
@@ -22,23 +21,19 @@ inputs:
   jobs:
     description: 'Number of parallel jobs'
     required: false
-    default: number of processors or 4 unable to determine
   no-tempdir-cleanup:
     description: 'Preserve test output temporary directory'
     required: false
-    default: 'true'
   no-parallelize-across-files:
     description: >
       Serialize test file execution instead of running
       them in parallel (requires --jobs >1)
     required: false
-    default: 'false'
   no-parallelize-within-files:
     description: >
       Serialize test execution within files instead of
       running them in parallel (requires --jobs >1)
     required: false
-    default: 'true'
   report-formatter:
     description: 'Switch between reporters (same options as --formatter)'
     required: false
@@ -48,27 +43,21 @@ inputs:
   print-output-on-failure:
     description: 'Automatically print the value of `$output` on failed tests'
     required: false
-    default: 'false'
   recursive:
     description: 'Include tests in subdirectories'
     required: false
-    default: 'true'
   show-output-of-passing-tests:
     description: 'Print output of passing tests'
     required: false
-    default: 'false'
   timing:
     description: 'Add timing information to tests'
     required: false
-    default: 'true'
   trace:
     description: 'Print test commands as they are executed (like `set -x`)'
     required: false
-    default: 'false'
   verbose-run:
     description: 'Make `run` print `$output` by default'
     required: false
-    default: 'false'
   tests:
     description: >
       Path to a Bats test file, or to a directory containing
@@ -105,23 +94,23 @@ runs:
 
         declare output
         output=$(
-          curl -LfsS https://git.io/batsw | "$SHELL" -s -- \
-            --filter=${{ inputs.filter }} \
-            --formatter=${{ inputs.formatter }} \
-            --gather-test-outputs-in=${{ inputs.gather-test-outputs-in }} \
-            --jobs=${{ inputs.jobs }} \
-            --no-tempdir-cleanup=${{ inputs.no-tempdir-cleanup }} \
-            --no-parallelize-across-files=${{ inputs.no-parallelize-across-files }} \
-            --no-parallelize-within-files=${{ inputs.no-parallelize-within-files }} \
-            --report-formatter=${{ inputs.report-formatter }} \
-            --output=${{ inputs.output }} \
-            --print-output-on-failure=${{ inputs.print-output-on-failure }} \
-            --recursive=${{ inputs.recursive }} \
-            --show-output-of-passing-tests=${{ inputs.show-output-of-passing-tests }} \
-            --timing=${{ inputs.timing }} \
-            --trace=${{ inputs.trace }} \
-            --verbose-run=${{ inputs.verbose-run }} \
-            "${input_tests[@]}"
+          declare -a opts=()
+          [ ! "${{ inputs.filter }}" ] || opts+=("--filter" "${{ inputs.filter }}")
+          [ ! "${{ inputs.formatter }}" ] || opts+=("--formatter" "${{ inputs.formatter }}")
+          [ ! "${{ inputs.gather-test-outputs-in }}" ] || opts+=("--gather-test-outputs-in" "${{ inputs.gather-test-outputs-in }}")
+          [ ! "${{ inputs.jobs }}" ] || opts+=("--jobs" "${{ inputs.jobs }}")
+          [ ! "${{ inputs.no-tempdir-cleanup }}" ] || opts+=("--no-tempdir-cleanup" "${{ inputs.no-tempdir-cleanup }}")
+          [ ! "${{ inputs.no-parallelize-across-files }}" ] || opts+=("--no-parallelize-across-files" "${{ inputs.no-parallelize-across-files }}")
+          [ ! "${{ inputs.no-parallelize-within-files }}" ] || opts+=("--no-parallelize-within-files" "${{ inputs.no-parallelize-within-files }}")
+          [ ! "${{ inputs.report-formatter }}" ] || opts+=("--report-formatter" "${{ inputs.report-formatter }}")
+          [ ! "${{ inputs.output }}" ] || opts+=("--output" "${{ inputs.output }}")
+          [ ! "${{ inputs.print-output-on-failure }}" ] || opts+=("--print-output-on-failure" "${{ inputs.print-output-on-failure }}")
+          [ ! "${{ inputs.recursive }}" ] || opts+=("--recursive" "${{ inputs.recursive }}")
+          [ ! "${{ inputs.show-output-of-passing-tests }}" ] || opts+=("--show-output-of-passing-tests" "${{ inputs.show-output-of-passing-tests }}")
+          [ ! "${{ inputs.timing }}" ] || opts+=("--timing" "${{ inputs.timing }}")
+          [ ! "${{ inputs.trace }}" ] || opts+=("--trace" "${{ inputs.trace }}")
+          [ ! "${{ inputs.verbose-run }}" ] || opts+=("--verbose-run" "${{ inputs.verbose-run }}")
+          curl -LfsS https://git.io/batsw | "$SHELL" -s -- "${opts[@]+"${opts[@]}"}" "${input_tests[@]+"${input_tests[@]}"}"
         )
         echo ::set-output name=status::"$?"
         set_multiline_output output "${output-}"

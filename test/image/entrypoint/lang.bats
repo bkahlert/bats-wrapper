@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 @test "should change LANG to C.UTF-8 by default" {
-  bats_test "test" <<'BATS' >test.bats
+  bats_test <<'BATS' >test.bats
   run echo "> $LANG <"
   trace
 BATS
@@ -10,7 +10,7 @@ BATS
 }
 
 @test "should change LANG to specified lang" {
-  bats_test "test" <<'BATS' >test.bats
+  bats_test <<'BATS' >test.bats
   run echo "> $LANG <"
   trace
 BATS

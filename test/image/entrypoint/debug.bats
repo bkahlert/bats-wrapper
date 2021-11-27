@@ -10,11 +10,11 @@ setup() {
 }
 
 @test "should not print logs by default" {
-  copy_fixture test.bats .
+  bats_test <<<'run echo "foo"; assert_output "foo"' >test.bats
   image --stderr-only "$BUILD_TAG" .
   assert_output --regexp '▶▶ TEST RUN
  ℹ working directory: .*
- ℹ bats command line: bats --jobs 4 --no-parallelize-within-files --recursive --timing .'
+ ℹ bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing --no-tempdir-cleanup .'
 }
 
 @test "should print logs to STDERR with enabled DEBUG" {
@@ -48,13 +48,13 @@ setup() {
 
 
 @test "should replace entrypoint with user entrypoint" {
-  copy_fixture test.bats .
+  bats_test <<<'run echo "foo"; assert_output "foo"' >test.bats
   image --env DEBUG=1 "$BUILD_TAG" .
   refute_line --partial "entrypoint.sh"
 }
 
 @test "should replace user entrypoint with user process" {
-  copy_fixture test.bats .
+  bats_test <<<'run echo "foo"; assert_output "foo"' >test.bats
   image --env DEBUG=1 "$BUILD_TAG" .
   refute_line --partial "entrypoint_user.sh"
 }

@@ -5,7 +5,8 @@ setup() {
   cp -R logr.sh "$BATS_TEST_TMPDIR"
   cp -R batsw "$BATS_TEST_TMPDIR"
   cp -R .git "$BATS_TEST_TMPDIR"
-  copy_fixture test.bats "$BATS_TEST_TMPDIR"
+  mkdir -p "$BATS_TEST_TMPDIR/test"
+  bats_test <<<'run echo "foo"; assert_output "foo"' >"$BATS_TEST_TMPDIR/test/test.bats"
 }
 
 actw() {
@@ -58,6 +59,8 @@ act() {
   export BATSW_ARGS
   BATSW_ARGS=$(
     cat <<BATSW_ARGS
+-e PUID="$(id -u)" \
+-e PGID="$(id -g)" \
 -v "$PWD/logr.sh":/usr/local/bin/logr.sh
 BATSW_ARGS
   )
@@ -94,7 +97,8 @@ jobs:
 WORKFLOW
 
   run act -j test
-  assert_output --partial '[test workflow/test]   ⚙  ::set-output:: status=0
-[test workflow/test]   ⚙  ::set-output:: output=TODO'
+  assert_output --partial '[test workflow/test]   ⚙  ::set-output:: status=0'
+  assert_output --partial '[test workflow/test]   ⚙  ::set-output:: output=1..1'
+  assert_output --regexp 'ok 1 test--[A-Za-z0-9]+ in [0-9]+ms'
   assert_output --partial '[test workflow/test]   ✅  Success - Run Bats tests'
 }

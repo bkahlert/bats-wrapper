@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 @test "should change timezone to UTC by default" {
-  bats_test "test" <<'BATS' >test.bats
+  bats_test <<'BATS' >test.bats
   run date +"%Z"
   trace
 BATS
@@ -10,7 +10,7 @@ BATS
 }
 
 @test "should change timezone to specified timezone" {
-  bats_test "test" <<'BATS' >test.bats
+  bats_test <<'BATS' >test.bats
   run date +"%Z"
   trace
 BATS
