@@ -42,8 +42,6 @@ main() {
     esac
   done
 
-  [ -e "$TMPDIR" ] || mkdir -p "$TMPDIR" || die "'$TMPDIR' could not be created"
-
   echo "${esc_hpa0-}${esc_green-}▶▶${esc_reset-} ${esc_bold-}TEST RUN${esc_reset-}" >&2
   logr info "working directory: $PWD" >&2
 

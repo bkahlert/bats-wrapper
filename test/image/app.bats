@@ -11,7 +11,7 @@
   image "$BUILD_TAG" .
   assert_output --regexp '▶▶ TEST RUN
  ℹ working directory: .*
- ℹ bats command line: bats --jobs 4 --no-parallelize-within-files --recursive --timing .
+ ℹ bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing .
 1..1
 ok 1 test in [0-9]+ms'
 }
@@ -23,7 +23,7 @@ ok 1 test in [0-9]+ms'
   assert_success
   assert_output --regexp '▶▶ TEST RUN
  ℹ working directory: .*
- ℹ bats command line: bats --jobs 4 --no-parallelize-within-files --recursive --timing .
+ ℹ bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing .
 1..1
 ok 1 test in [0-9]+ms'
 }

@@ -14,7 +14,7 @@ setup() {
   image --stderr-only "$BUILD_TAG" .
   assert_output --regexp '▶▶ TEST RUN
  ℹ working directory: .*
- ℹ bats command line: bats --jobs 4 --no-parallelize-within-files --recursive --timing .'
+ ℹ bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing .'
 }
 
 @test "should print logs to STDERR with enabled DEBUG" {

@@ -35,13 +35,31 @@ update_user_id() {
   fi
 }
 
+# Fixes TMPDIR permissions for the specified user and group.
+# Arguments:
+#   1 - name of the user
+#   2 - name of the group
+fix_tmpdir_permissions() {
+  local -r user="${1:?user missing}"
+  local -r group="${2:?group missing}"
+  local tmp_dir=${TMPDIR%/}
+
+  [ -e "$TMPDIR" ] || mkdir -p "$TMPDIR" || logr error "'$TMPDIR' could not be created"
+  [ -d "$tmp_dir" ] || return 0
+
+  logr task "changing ownership of $tmp_dir to $user:$group" \
+    -- chown -R "$user:$group" "$tmp_dir"
+  logr task "changing permissions of $tmp_dir to 0700" \
+    -- chmod -R 0700 "$tmp_dir"
+}
+
 # Fixes the home permissions for the specified user.
 # Arguments:
 #   1 - name of the user
 fix_home_permissions() {
   local -r user=${1:?user missing}
   local -r home="/home/$user"
-  mkdir -p "$home"
+  mkdir -p "$home" || logr error "'$TMPDIR' could not be created"
   chown -R "$user" "$home"
   chmod -R u+rw "$home"
 }
@@ -73,7 +91,7 @@ set_sshd_config() {
       continue
     fi
     if sed \
-      --expression 's/#?[[:space:]]*'${key}' .*$/'${key}' '${value}'/g' \
+      --expression 's/#?[[:space:]]*'"$key"' .*$/'"$key"' '"$value"'/g' \
       --in-place \
       --regexp-extended \
       /etc/ssh/sshd_config; then
@@ -229,6 +247,7 @@ main() {
     [ ! "${PGID-}" ] || logr task "updating ID of group $app_group to $PGID" -- update_group_id "$app_group" "$PGID"
     [ ! "${PUID-}" ] || logr task "updating ID of user $app_user to $PUID" -- update_user_id "$app_user" "$PUID" || logr fail "failed to update ID of user $app_user to $PUID"
     logr task "fixing permissions of stdout and stderr" -- fix_std_permissions
+    logr task "fixing permissions of TMPDIR directory for $app_user" -- fix_tmpdir_permissions "$app_user" "$app_group"
     logr task "fixing permissions of home directory for $app_user" -- fix_home_permissions "$app_user"
     logr task "fixing permissions of .ssh directory for $app_user" -- fix_ssh_permissions "$app_user" "$app_group"
     logr task "fixing permissions of Docker socket $app_user" -- fix_docker_sock_permissions "$app_user" "$app_group"
