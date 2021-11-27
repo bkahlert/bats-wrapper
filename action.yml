@@ -1,0 +1,128 @@
+name: 'Bats tests'
+author: 'Björn Kahlert'
+description: 'Run Bats (Bash Automated Testing System) tests'
+branding:
+  icon: 'circle'
+  color: 'red'
+inputs:
+  filter:
+    description: 'Only run tests that match the regular expression'
+    required: false
+  formatter:
+    description: >
+      Switch between formatters: pretty (default),
+      tap (default w/o term), tap13, junit
+    required: false
+    default: pretty
+  gather-test-outputs-in:
+    description: >
+      Gather the output of failing *and* passing tests
+      as files in directory
+    required: false
+  jobs:
+    description: 'Number of parallel jobs'
+    required: false
+    default: number of processors or 4 unable to determine
+  no-tempdir-cleanup:
+    description: 'Preserve test output temporary directory'
+    required: false
+    default: 'true'
+  no-parallelize-across-files:
+    description: >
+      Serialize test file execution instead of running
+      them in parallel (requires --jobs >1)
+    required: false
+    default: 'false'
+  no-parallelize-within-files:
+    description: >
+      Serialize test execution within files instead of
+      running them in parallel (requires --jobs >1)
+    required: false
+    default: 'true'
+  report-formatter:
+    description: 'Switch between reporters (same options as --formatter)'
+    required: false
+  output:
+    description: 'Directory to write report files'
+    required: false
+  print-output-on-failure:
+    description: 'Automatically print the value of `$output` on failed tests'
+    required: false
+    default: 'false'
+  recursive:
+    description: 'Include tests in subdirectories'
+    required: false
+    default: 'true'
+  show-output-of-passing-tests:
+    description: 'Print output of passing tests'
+    required: false
+    default: 'false'
+  timing:
+    description: 'Add timing information to tests'
+    required: false
+    default: 'true'
+  trace:
+    description: 'Print test commands as they are executed (like `set -x`)'
+    required: false
+    default: 'false'
+  verbose-run:
+    description: 'Make `run` print `$output` by default'
+    required: false
+    default: 'false'
+  tests:
+    description: >
+      Path to a Bats test file, or to a directory containing
+      Bats test files (ending with ".bats")
+    required: true
+outputs:
+  status:
+    description: 'Exit status/code of the test run'
+    value: ${{ steps.bats-wrapper.outputs.status }}
+  output:
+    description: 'Output of the test run'
+    value: ${{ steps.bats-wrapper.outputs.output }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Run Bats tests
+      id: bats-wrapper
+      run: |
+        set_multiline_output() {
+          local name=${1?name missing} && shift
+          local value=$*
+          value="${value//'%'/'%25'}"
+          value="${value//$'\n'/'%0A'}"
+          value="${value//$'\r'/'%0D'}"
+          echo ::set-output name="$name"::"$value"
+        }
+
+        declare -a input_tests=()
+        while read -r input_test; do
+          [ ! "${input_test-}" ] || input_tests+=("$input_test")
+        done <<INPUT_TESTS
+        ${{ inputs.tests }}
+        INPUT_TESTS
+
+        declare output
+        output=$(
+          curl -LfsS https://git.io/batsw | "$SHELL" -s -- \
+            --filter=${{ inputs.filter }} \
+            --formatter=${{ inputs.formatter }} \
+            --gather-test-outputs-in=${{ inputs.gather-test-outputs-in }} \
+            --jobs=${{ inputs.jobs }} \
+            --no-tempdir-cleanup=${{ inputs.no-tempdir-cleanup }} \
+            --no-parallelize-across-files=${{ inputs.no-parallelize-across-files }} \
+            --no-parallelize-within-files=${{ inputs.no-parallelize-within-files }} \
+            --report-formatter=${{ inputs.report-formatter }} \
+            --output=${{ inputs.output }} \
+            --print-output-on-failure=${{ inputs.print-output-on-failure }} \
+            --recursive=${{ inputs.recursive }} \
+            --show-output-of-passing-tests=${{ inputs.show-output-of-passing-tests }} \
+            --timing=${{ inputs.timing }} \
+            --trace=${{ inputs.trace }} \
+            --verbose-run=${{ inputs.verbose-run }} \
+            "${input_tests[@]}"
+        )
+        echo ::set-output name=status::"$?"
+        set_multiline_output output "${output-}"
+      shell: bash
