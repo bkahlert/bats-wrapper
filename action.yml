@@ -1,4 +1,4 @@
-name: 'Bats tests'
+name: 'Bats Wrapper'
 author: 'Björn Kahlert'
 description: 'Run Bats (Bash Automated Testing System) tests'
 branding:
