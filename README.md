@@ -130,7 +130,7 @@ jobs:
 
       - name: Run Bats tests
         id: bats
-        uses: bkahlert/bats-wrapper@v0.1.0
+        uses: bkahlert/bats-wrapper@v0.1.1
         with:
           tests: test
 ```
