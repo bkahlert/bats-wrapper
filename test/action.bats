@@ -5,7 +5,7 @@ setup() {
   cp -R logr.sh "$BATS_TEST_TMPDIR"
   cp -R batsw "$BATS_TEST_TMPDIR"
   cp -R .git "$BATS_TEST_TMPDIR"
-  mkdir -p "$BATS_TEST_TMPDIR/test"
+  mkdir -p "${BATS_TEST_TMPDIR%/}/test"
   bats_test <<<'run echo "foo"; assert_output "foo"' >"$BATS_TEST_TMPDIR/test/test.bats"
 }
 

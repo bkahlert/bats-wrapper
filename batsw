@@ -40,7 +40,7 @@ if [ "${DOCKER_BAKE-}" ]; then
   echo "🐳 built Docker image: $(eval bake "$DOCKER_BAKE")" >&2
 fi
 
-declare wrapper_name=${0##*/}
+declare wrapper_name=batsw
 declare -a args=() wrapper_args=()
 while (($#)); do
   case $1 in
