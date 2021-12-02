@@ -173,8 +173,8 @@ git clone https://github.com/bkahlert/bats-wrapper.git
 cd bats-wrapper
 
 # Use Bats wrapper to build the Docker image and run the tests
-chmod +x ./bats
-DOCKER_BAKE="--set *.tags=test" BATSW_IMAGE=test:latest \
+chmod +x ./batsw
+DOCKER_BAKE="--set '*.tags=test'" BATSW_IMAGE=test:latest \
   ./batsw --batsw:-e --batsw:BUILD_TAG=test test
 ```
 

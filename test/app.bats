@@ -29,3 +29,11 @@
   assert_success
   assert_output "${BATS_TEST_TMPDIR//\/\//\/}"
 }
+
+@test "should set TESTING=1" {
+  run echo "${TESTING-0}"
+  assert_success
+  assert_output "1"
+}
+
+# TODO test wrapper.sh
