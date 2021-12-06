@@ -23,6 +23,13 @@
 *none*
 
 
+## [0.1.3] - 2021-12-06
+
+### Changed
+
+- set `$SHELL` of test user to `/bin/bash`
+
+
 ## [0.1.2] - 2021-12-02
 
 ### Fixed
@@ -43,7 +50,9 @@
 
 - `batsw` self-contained wrapper to run Bats (Bash Automated Testing System) tests
 
-[unreleased]: https://github.com/bkahlert/bats/compare/v0.1.2...HEAD
+[unreleased]: https://github.com/bkahlert/bats/compare/v0.1.3...HEAD
+
+[0.1.3]: https://github.com/bkahlert/bats/compare/v0.1.2...v0.1.3
 
 [0.1.2]: https://github.com/bkahlert/bats/compare/v0.1.1...v0.1.2
 

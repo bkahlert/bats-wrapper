@@ -91,9 +91,8 @@ RUN groupadd \
     --comment "app user" \
     --uid $PUID \
     --gid "$APP_GROUP" \
-    --shell /sbin/nologin \
+    --shell /bin/bash \
     "$APP_USER" \
- && rm -rf /tmp/* /var/lib/apt/list/* \
  && mkdir -p ~/.parallel && touch ~/.parallel/will-cite # accept citation notice
 
 # finalization

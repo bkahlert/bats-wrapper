@@ -130,7 +130,7 @@ jobs:
 
       - name: Run Bats tests
         id: bats
-        uses: bkahlert/bats-wrapper@v0.1.2
+        uses: bkahlert/bats-wrapper@v0.1.3
         with:
           tests: test
 ```
@@ -143,8 +143,8 @@ This image can be configured using the following options of which all but `APP_U
 You should go for build arguments if you want to set custom defaults you don't intend to change (often). Environment variables will overrule any existing
 configuration on each container start.
 
-- `APP_USER` Name of the main user (default: `bats`).
-- `APP_GROUP` Name of the main user's group (default: `bats`).
+- `APP_USER` Name of the main user (default: `bats`)
+- `APP_GROUP` Name of the main user's group (default: `bats`)
 - `DEBUG` Whether to log debug information (default: `0`)
 - `TZ` Timezone the container runs in (default: `UTC`)
 - `LANG` Language/locale to use (default: `C.UTF-8`)
