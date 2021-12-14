@@ -1,4 +1,4 @@
-FROM docker:20.10.11-alpine3.14
+FROM docker:20.10.12-alpine3.14
 
 # build time only options
 ARG BATS_CORE_VERSION=1.5.0
