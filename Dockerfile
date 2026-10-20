@@ -1,10 +1,10 @@
-FROM docker:20.10.11-alpine3.14
+FROM docker:29.9.1-cli-alpine3.24
 
 # build time only options
-ARG BATS_CORE_VERSION=1.5.0
+ARG BATS_CORE_VERSION=1.14.0
 ARG BATS_SUPPORT_VERSION=0.3.0
-ARG BATS_ASSERT_VERSION=2.0.0
-ARG BATS_FILE_VERSION=0.3.0
+ARG BATS_ASSERT_VERSION=2.2.4
+ARG BATS_FILE_VERSION=0.4.0
 ARG LOGR_VERSION=0.6.2
 ARG APP_USER=tester
 ARG APP_GROUP=$APP_USER
@@ -23,7 +23,6 @@ RUN apk --no-cache --update add \
     ca-certificates \
     curl \
     dumb-init \
-    docker-cli \
     expect \
     git \
     jq \
@@ -35,7 +34,7 @@ RUN apk --no-cache --update add \
     sshpass
 
 # app setup
-COPY --from=crazymax/yasu:1.17.0 / /
+COPY --from=crazymax/yasu:1.20.1 / /
 COPY rootfs /
 RUN chmod +x \
     /usr/local/sbin/entrypoint.sh \
@@ -44,6 +43,8 @@ RUN chmod +x \
             -e "s/([[:space:]]app_group=)[^[:space:]]*/\1$APP_GROUP/" \
              /usr/local/sbin/entrypoint.sh \
  && curl -LfsSo /usr/local/bin/logr.sh https://github.com/bkahlert/logr/releases/download/v${LOGR_VERSION}/logr.sh \
+ && sed -i -e "s/jobs -pr 'spinner _spin'/jobs -pr '%spinner _spin'/g" \
+           -e 's/| xargs -r kill$/| xargs -r kill 2>\/dev\/null || true/' /usr/local/bin/logr.sh \
  && mkdir -p opt/bats/lib/{support,assert,file} \
  && ( \
     cd opt/bats \
@@ -70,11 +71,9 @@ RUN chmod +x \
     ) \
  && ln -s /opt/bats/bin/bats /usr/local/bin/bats \
  && find /opt/bats -type d -name "test" -exec rm -rf {} + \
- && test_functions_path="/opt/bats/lib/bats-core/test_functions.bash" \
- && test_functions=$(cat "$test_functions_path") \
- && test_functions=${test_functions//setup/wrapped_setup} \
- && test_functions=${test_functions//wrapped_setup() {/'wrapped_setup() {'$'\n'"  source '${test_functions_path%/*/*}/wrapper/load.bash'"} \
- && echo "$test_functions" >"$test_functions_path"
+ && test_runner="/opt/bats/libexec/bats-core/bats-exec-test" \
+ && grep -q '^    setup "\$@"$' "$test_runner" \
+ && sed -i 's|^    setup "\$@"$|    source /opt/bats/lib/wrapper/load.bash|' "$test_runner"
 
 # env setup
 ENV DEBUG="$DEBUG" \

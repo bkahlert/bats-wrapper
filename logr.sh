@@ -426,8 +426,8 @@ spinner() {
     stop)
       shift
       [ $# = 0 ] || logr error "unexpected argument" --usage "$usage" --stacktrace -- "$@"
-      if jobs -pr 'spinner _spin' >/dev/null 2>/dev/null; then
-        jobs -pr 'spinner _spin' | xargs -r kill
+      if jobs -pr '%spinner _spin' >/dev/null 2>/dev/null; then
+        jobs -pr '%spinner _spin' | xargs -r kill 2>/dev/null || true
       fi
       ;;
     _spin)

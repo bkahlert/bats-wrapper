@@ -14,6 +14,6 @@ BATS
   run date +"%Z"
   trace
 BATS
-  image -e "TZ=CEST" "$BUILD_TAG" .
-  assert_line --partial CEST
+  image -e "TZ=Asia/Tokyo" "$BUILD_TAG" .
+  assert_line --partial JST
 }
