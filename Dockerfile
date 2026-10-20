@@ -5,7 +5,7 @@ ARG BATS_CORE_VERSION=1.14.0
 ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.2.4
 ARG BATS_FILE_VERSION=0.4.0
-ARG LOGR_VERSION=0.6.2
+ARG LOGR_VERSION=0.6.3
 ARG APP_USER=tester
 ARG APP_GROUP=$APP_USER
 
@@ -43,8 +43,6 @@ RUN chmod +x \
             -e "s/([[:space:]]app_group=)[^[:space:]]*/\1$APP_GROUP/" \
              /usr/local/sbin/entrypoint.sh \
  && curl -LfsSo /usr/local/bin/logr.sh https://github.com/bkahlert/logr/releases/download/v${LOGR_VERSION}/logr.sh \
- && sed -i -e "s/jobs -pr 'spinner _spin'/jobs -pr '%spinner _spin'/g" \
-           -e 's/| xargs -r kill$/| xargs -r kill 2>\/dev\/null || true/' /usr/local/bin/logr.sh \
  && mkdir -p opt/bats/lib/{support,assert,file} \
  && ( \
     cd opt/bats \
