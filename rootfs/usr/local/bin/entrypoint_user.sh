@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source logr.sh
+source /usr/local/bin/logr.sh || exit "$?"
 
 # Run the specified tests concurrently and recursively using Bats.
 # Note: This method is called twice. Once without and once with `--no-tempdir-cleanup`.

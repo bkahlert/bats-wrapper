@@ -16,6 +16,29 @@
 ok 1 test--[A-Za-z0-9]+ in [0-9]+ms'
 }
 
+@test "should run mounted tests with default user and temporary directory" {
+  bats_test <<'BATS' >test.bats
+  [ "$(id -u)" -eq 1000 ]
+  [ -w /tmp ]
+  run touch "$BATS_TEST_TMPDIR/writable"
+  assert_success
+BATS
+  IMAGE_PUID='' IMAGE_PGID='' image -v "$PWD":/code:ro -w /code "$BUILD_TAG" .
+  assert_line " ℹ working directory: /code"
+  assert_line --regexp '^ok 1 test--[A-Za-z0-9]+ in [0-9]+ms$'
+}
+
+@test "should load installed logging helper regardless of PATH order" {
+  bats_test <<<'run echo "foo"; assert_output "foo"' >test.bats
+  echo 'exit 99' >logr.sh
+  chmod +x logr.sh
+  image -v "$PWD":/code:ro -w /code \
+    -e PATH=/code:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    "$BUILD_TAG" .
+  assert_line " ℹ working directory: /code"
+  assert_line --regexp '^ok 1 test--[A-Za-z0-9]+ in [0-9]+ms$'
+}
+
 @test "should output completed files separately on redirected STDOUT" {
   mkdir tmp
   bats_test <<<'run echo "foo"; assert_output "foo"' >test.bats
