@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source logr.sh
+source /usr/local/bin/logr.sh || exit "$?"
 
 # Fixes permissions to stdout and stderr.
 # see https://github.com/containers/conmon/pull/112
