@@ -75,43 +75,68 @@ runs:
   steps:
     - name: Run Bats tests
       id: bats-wrapper
+      env:
+        BATSW_ACTION_PATH: ${{ github.action_path }}
+        BATSW_INPUT_TESTS: ${{ inputs.tests }}
+        BATSW_INPUT_FILTER: ${{ inputs.filter }}
+        BATSW_INPUT_FORMATTER: ${{ inputs.formatter }}
+        BATSW_INPUT_GATHER_TEST_OUTPUTS_IN: ${{ inputs.gather-test-outputs-in }}
+        BATSW_INPUT_JOBS: ${{ inputs.jobs }}
+        BATSW_INPUT_NO_TEMPDIR_CLEANUP: ${{ inputs.no-tempdir-cleanup }}
+        BATSW_INPUT_NO_PARALLELIZE_ACROSS_FILES: ${{ inputs.no-parallelize-across-files }}
+        BATSW_INPUT_NO_PARALLELIZE_WITHIN_FILES: ${{ inputs.no-parallelize-within-files }}
+        BATSW_INPUT_REPORT_FORMATTER: ${{ inputs.report-formatter }}
+        BATSW_INPUT_OUTPUT: ${{ inputs.output }}
+        BATSW_INPUT_PRINT_OUTPUT_ON_FAILURE: ${{ inputs.print-output-on-failure }}
+        BATSW_INPUT_RECURSIVE: ${{ inputs.recursive }}
+        BATSW_INPUT_SHOW_OUTPUT_OF_PASSING_TESTS: ${{ inputs.show-output-of-passing-tests }}
+        BATSW_INPUT_TIMING: ${{ inputs.timing }}
+        BATSW_INPUT_TRACE: ${{ inputs.trace }}
+        BATSW_INPUT_VERBOSE_RUN: ${{ inputs.verbose-run }}
       run: |
         set_multiline_output() {
           local name=${1?name missing} && shift
           local value=$*
-          value="${value//'%'/'%25'}"
-          value="${value//$'\n'/'%0A'}"
-          value="${value//$'\r'/'%0D'}"
-          echo ::set-output name="$name"::"$value"
+          local delimiter=BATS_WRAPPER_OUTPUT
+          while grep -Fxq "$delimiter" <<<"$value"; do
+            delimiter+=_
+          done
+          {
+            printf '%s<<%s\n' "$name" "$delimiter"
+            printf '%s\n' "$value"
+            printf '%s\n' "$delimiter"
+          } >>"$GITHUB_OUTPUT"
         }
 
         declare -a input_tests=()
-        while read -r input_test; do
+        while IFS= read -r input_test; do
           [ ! "${input_test-}" ] || input_tests+=("$input_test")
-        done <<INPUT_TESTS
-        ${{ inputs.tests }}
-        INPUT_TESTS
+        done <<<"$BATSW_INPUT_TESTS"
 
-        declare output
-        output=$(
-          declare -a opts=()
-          [ ! "${{ inputs.filter }}" ] || opts+=("--filter" "${{ inputs.filter }}")
-          [ ! "${{ inputs.formatter }}" ] || opts+=("--formatter" "${{ inputs.formatter }}")
-          [ ! "${{ inputs.gather-test-outputs-in }}" ] || opts+=("--gather-test-outputs-in" "${{ inputs.gather-test-outputs-in }}")
-          [ ! "${{ inputs.jobs }}" ] || opts+=("--jobs" "${{ inputs.jobs }}")
-          [ ! "${{ inputs.no-tempdir-cleanup }}" ] || opts+=("--no-tempdir-cleanup" "${{ inputs.no-tempdir-cleanup }}")
-          [ ! "${{ inputs.no-parallelize-across-files }}" ] || opts+=("--no-parallelize-across-files" "${{ inputs.no-parallelize-across-files }}")
-          [ ! "${{ inputs.no-parallelize-within-files }}" ] || opts+=("--no-parallelize-within-files" "${{ inputs.no-parallelize-within-files }}")
-          [ ! "${{ inputs.report-formatter }}" ] || opts+=("--report-formatter" "${{ inputs.report-formatter }}")
-          [ ! "${{ inputs.output }}" ] || opts+=("--output" "${{ inputs.output }}")
-          [ ! "${{ inputs.print-output-on-failure }}" ] || opts+=("--print-output-on-failure" "${{ inputs.print-output-on-failure }}")
-          [ ! "${{ inputs.recursive }}" ] || opts+=("--recursive" "${{ inputs.recursive }}")
-          [ ! "${{ inputs.show-output-of-passing-tests }}" ] || opts+=("--show-output-of-passing-tests" "${{ inputs.show-output-of-passing-tests }}")
-          [ ! "${{ inputs.timing }}" ] || opts+=("--timing" "${{ inputs.timing }}")
-          [ ! "${{ inputs.trace }}" ] || opts+=("--trace" "${{ inputs.trace }}")
-          [ ! "${{ inputs.verbose-run }}" ] || opts+=("--verbose-run" "${{ inputs.verbose-run }}")
-          curl -LfsS https://git.io/batsw | "$SHELL" -s -- "${opts[@]+"${opts[@]}"}" "${input_tests[@]+"${input_tests[@]}"}"
-        )
-        echo ::set-output name=status::"$?"
+        declare -a opts=()
+        for option in filter formatter gather-test-outputs-in jobs report-formatter output; do
+          variable="BATSW_INPUT_${option^^}"
+          variable=${variable//-/_}
+          [ ! "${!variable}" ] || opts+=("--$option" "${!variable}")
+        done
+        for option in no-tempdir-cleanup no-parallelize-across-files no-parallelize-within-files \
+          print-output-on-failure recursive show-output-of-passing-tests timing trace verbose-run; do
+          variable="BATSW_INPUT_${option^^}"
+          variable=${variable//-/_}
+          case "${!variable}" in
+            ''|false) ;;
+            *) opts+=("--$option") ;;
+          esac
+        done
+
+        declare output status
+        if output=$(bash "$BATSW_ACTION_PATH/batsw" "${opts[@]}" "${input_tests[@]}"); then
+          status=0
+        else
+          status=$?
+        fi
+        printf 'status=%s\n' "$status" >>"$GITHUB_OUTPUT"
         set_multiline_output output "${output-}"
+        printf '%s\n' "${output-}"
+        exit "$status"
       shell: bash

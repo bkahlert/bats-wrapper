@@ -271,23 +271,6 @@ patch_lib() {
   local short_name=${1:?}
 
   case $short_name in
-    assert)
-      local bats_assert_line
-      bats_assert_line=$(declare -f assert_line) || true
-      if [ "${bats_assert_line-}" ]; then
-        eval "bats_${bats_assert_line}"
-        # bashsupport disable=BP5008
-        assert_line() {
-          local shell_option=nullglob
-          if shopt -q "$shell_option"; then
-            printf '%s\n' "❗ Bats' assert_line seems broken if shell option $shell_option is enabled." >&2
-            printf '%s\n' "❗ Workaround: enable $shell_option only locally or use assert_output." >&2
-            exit 1
-          fi
-          bats_assert_line "$@"
-        }
-      fi
-      ;;
     file)
       local bats_fn bats_decl
       for bats_fn in $(set | grep -e "^assert_file_*"); do

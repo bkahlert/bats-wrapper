@@ -39,7 +39,7 @@ actw() {
   opts+=("${wrapper_args[@]}")
   opts+=("--rm")
   opts+=("--name" "$wrapper_name--$(head /dev/urandom | LC_ALL=C.UTF-8 tr -dc A-Za-z0-9 2>/dev/null | head -c 3)")
-  opts+=("${ACTW_IMAGE:-efrecon/act:${ACTW_IMAGE_TAG:-v0.2.24}}")
+  opts+=("${ACTW_IMAGE:-efrecon/act:${ACTW_IMAGE_TAG:-v0.2.89}}")
 
   docker run \
     -e DEBUG="${DEBUG-}" \
@@ -71,7 +71,7 @@ BATSW_ARGS
     --env RECORDING="${RECORDING-}" \
     --env TERM="${TERM-}" \
     --env BATS_TMPDIR="${BATS_TMPDIR-}" \
-    --env BATSW_IMAGE_TAG=edge \
+    --env BATSW_IMAGE="${BUILD_TAG:-test}" \
     --env BATSW_ARGS="${BATSW_ARGS-}" \
     --platform ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest \
     "$@"
@@ -88,17 +88,63 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.1
       - name: Run Bats tests
         id: bats
         uses: ./
         with:
           tests: test
+          filter: 'test--|\$(touch injected)'
+          timing: true
+          trace: false
+      - name: Check action outputs
+        env:
+          STATUS: \${{ steps.bats.outputs.status }}
+          OUTPUT: \${{ steps.bats.outputs.output }}
+        run: |
+          test "\$STATUS" = 0
+          test ! -e injected
+          grep -Fx '1..1' <<<"\$OUTPUT"
+          echo 'action outputs verified'
 WORKFLOW
 
   run act -j test
-  assert_output --partial '[test workflow/test]   ⚙  ::set-output:: status=0'
-  assert_output --partial '[test workflow/test]   ⚙  ::set-output:: output=1..1'
+  assert_success
+  assert_output --partial 'action outputs verified'
   assert_output --regexp 'ok 1 test--[A-Za-z0-9]+ in [0-9]+ms'
-  assert_output --partial '[test workflow/test]   ✅  Success - Run Bats tests'
+  assert_output --partial 'Success - Main Run Bats tests'
+}
+
+@test "should expose action outputs when tests fail" {
+  bats_test <<<'false' >"$BATS_TEST_TMPDIR/test/test.bats"
+  local workflows="$BATS_TEST_TMPDIR/.github/workflows"
+  mkdir -p "$workflows"
+  cat <<'WORKFLOW' >"$workflows/act-test.yml"
+name: test workflow
+on: [push,workflow_dispatch]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run failing Bats tests
+        id: bats
+        uses: ./
+        continue-on-error: true
+        with:
+          tests: test
+      - name: Check action failure outputs
+        env:
+          STATUS: ${{ steps.bats.outputs.status }}
+          OUTPUT: ${{ steps.bats.outputs.output }}
+          OUTCOME: ${{ steps.bats.outcome }}
+        run: |
+          test "$STATUS" = 1
+          test "$OUTCOME" = failure
+          grep -F 'not ok 1' <<<"$OUTPUT"
+          echo 'action failure outputs verified'
+WORKFLOW
+
+  run act -j test
+  assert_success
+  assert_output --partial 'action failure outputs verified'
 }

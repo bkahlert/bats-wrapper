@@ -8,7 +8,7 @@ setup() {
 }
 
 @test "should persist APP_USER and APP_GROUP in entrypoint.sh" {
-  image "$BUILD_TAG" .
+  image "$BUILD_TAG" --allow-empty-suite .
   run docker cp "${BATS_TEST_NAME}:/usr/local/sbin/entrypoint.sh" -
   assert_line '  local -r app_user=tester app_group=tester'
 }

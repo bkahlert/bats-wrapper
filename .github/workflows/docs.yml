@@ -18,16 +18,23 @@ concurrency:
 jobs:
   docs:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Prepare
         id: prep
+        env:
+          RECORDR_BRANCH: ${{ github.ref_name }}--docs
         run: |
-          echo ::set-output name=recordr-branch::"${{ github.ref_name }}--docs"
-          echo ::set-output name=recordr-build-dir::"build/rec"
+          {
+            echo "recordr-branch=$RECORDR_BRANCH"
+            echo recordr-build-dir=build/rec
+          } >>"$GITHUB_OUTPUT"
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.1
 
       - name: ● REC
         if: github.event_name != 'pull_request'
@@ -38,8 +45,8 @@ jobs:
           build-dir: ${{ steps.prep.outputs.recordr-build-dir }}
 
       - name: Upload ● REC artifacts
-        uses: actions/upload-artifact@v3
-        if: success() || failure()
+        uses: actions/upload-artifact@v7.0.2
+        if: github.event_name != 'pull_request' && (success() || failure())
         id: recordr-artifacts
         with:
           name: rec-artifacts
@@ -47,7 +54,7 @@ jobs:
           path: ${{ steps.prep.outputs.recordr-build-dir }}
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v4.0.1
+        uses: peter-evans/create-pull-request@v8.1.1
         if: startsWith(github.ref, 'refs/heads/')
         with:
           commit-message: |

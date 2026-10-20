@@ -126,16 +126,22 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.1
 
       - name: Run Bats tests
         id: bats
-        uses: bkahlert/bats-wrapper@v0.1.4
+        uses: bkahlert/bats-wrapper@v0.2.0
         with:
           tests: test
 ```
 
 All [described options](#usage) can be used to customize the test run. Please consult [action.yml](action.yml) for detailed information. 
+
+The action exposes the test exit code as `status` and standard output as `output`, including when tests fail.
+Failed tests fail the action; use `continue-on-error: true` to inspect their outputs in later steps.
+Boolean options accept `true` or `false`.
+
+With Bats 1.14, an empty test suite fails by default. Pass `--allow-empty-suite` to the wrapper if an empty suite is expected.
 
 ## Image Configuration
 

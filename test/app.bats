@@ -18,6 +18,13 @@
   assert_line --partial "assert ()"
 }
 
+@test "should assert lines with nullglob enabled" {
+  shopt -s nullglob
+  run printf '%s\n' "Hello BATS"
+  assert_success
+  assert_line "Hello BATS"
+}
+
 @test "should load bats-file" {
   run declare -f assert_exist
   assert_success

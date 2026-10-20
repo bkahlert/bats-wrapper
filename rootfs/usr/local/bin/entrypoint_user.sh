@@ -50,7 +50,7 @@ main() {
   # If such exist, focus on them and ignore the others.
   local highlighted_tests_args=('--filter' '^[Xx]')
   local highlighted_tests=0
-  local highlighted_cmdline=(bats --count "${highlighted_tests_args[@]}" "${opts[@]+"${opts[@]}"}")
+  local highlighted_cmdline=(bats --allow-empty-suite --count "${highlighted_tests_args[@]}" "${opts[@]+"${opts[@]}"}")
   if ! highlighted_tests=$(TERM=dumb "${highlighted_cmdline[@]}" 2>/dev/null); then
     logr warn "failed to find highlighted tests; command line used: ${highlighted_cmdline[*]}"
   fi
