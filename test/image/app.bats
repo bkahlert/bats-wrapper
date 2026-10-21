@@ -9,11 +9,7 @@
 @test "should run tests" {
   bats_test <<<'run echo "foo"; assert_output "foo"' >test.bats
   image "$BUILD_TAG" .
-  assert_output --regexp '▶▶ TEST RUN
- ℹ working directory: .*
- ℹ bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing --no-tempdir-cleanup .
-1..1
-ok 1 test--[A-Za-z0-9]+ in [0-9]+ms'
+  assert_output --regexp $'▶▶ TEST RUN\n \xE2\x84\xB9\xEF\xB8\x8E working directory: .*\n \xE2\x84\xB9\xEF\xB8\x8E bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing --no-tempdir-cleanup .\n1..1\nok 1 test--[A-Za-z0-9]+ in [0-9]+ms'
 }
 
 @test "should run mounted tests with default user and temporary directory" {
@@ -24,7 +20,7 @@ ok 1 test--[A-Za-z0-9]+ in [0-9]+ms'
   assert_success
 BATS
   IMAGE_PUID='' IMAGE_PGID='' image -v "$PWD":/code:ro -w /code "$BUILD_TAG" .
-  assert_line " ℹ working directory: /code"
+  assert_line $' \xE2\x84\xB9\xEF\xB8\x8E working directory: /code'
   assert_line --regexp '^ok 1 test--[A-Za-z0-9]+ in [0-9]+ms$'
 }
 
@@ -35,7 +31,7 @@ BATS
   image -v "$PWD":/code:ro -w /code \
     -e PATH=/code:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     "$BUILD_TAG" .
-  assert_line " ℹ working directory: /code"
+  assert_line $' \xE2\x84\xB9\xEF\xB8\x8E working directory: /code'
   assert_line --regexp '^ok 1 test--[A-Za-z0-9]+ in [0-9]+ms$'
 }
 
@@ -44,12 +40,7 @@ BATS
   bats_test <<<'run echo "foo"; assert_output "foo"' >test.bats
   run bash -c "echo \"\$(BATSW_IMAGE='$BUILD_TAG' BATS_TMPDIR='$PWD/tmp' '$BATS_CWD/batsw' .)\""
   assert_success
-  assert_output --regexp '▶▶ TEST RUN
- ℹ working directory: .*
- ℹ bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing --no-tempdir-cleanup .
-BATS_RUN_TMPDIR: .*
-1..1
-ok 1 test--[A-Za-z0-9]+ in [0-9]+ms'
+  assert_output --regexp $'▶▶ TEST RUN\n \xE2\x84\xB9\xEF\xB8\x8E working directory: .*\n \xE2\x84\xB9\xEF\xB8\x8E bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing --no-tempdir-cleanup .\nBATS_RUN_TMPDIR: .*\n1..1\nok 1 test--[A-Za-z0-9]+ in [0-9]+ms'
 }
 
 @test "should output completed files separately on redirected STDERR" {
