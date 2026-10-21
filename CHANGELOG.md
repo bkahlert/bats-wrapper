@@ -8,7 +8,9 @@
 
 ### Changed
 
-*none*
+- Upgrade Docker CLI to 29.9.2, recordr to 0.2.3, and dorny/test-reporter
+  to 3.2.0.
+- Prepare the container to use Logr 0.6.4 once its release is published.
 
 ### Deprecated
 

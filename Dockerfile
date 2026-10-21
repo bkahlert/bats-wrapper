@@ -1,11 +1,11 @@
-FROM docker:29.9.1-cli-alpine3.24
+FROM docker:29.9.2-cli-alpine3.24
 
 # build time only options
 ARG BATS_CORE_VERSION=1.14.0
 ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.2.4
 ARG BATS_FILE_VERSION=0.4.0
-ARG LOGR_VERSION=0.6.3
+ARG LOGR_VERSION=0.6.4
 ARG APP_USER=tester
 ARG APP_GROUP=$APP_USER
 
@@ -93,4 +93,6 @@ RUN groupadd \
  && mkdir -p ~/.parallel && touch ~/.parallel/will-cite # accept citation notice
 
 # finalization
+# One-shot test runner; it has no long-lived service to probe.
+HEALTHCHECK NONE
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/sbin/entrypoint.sh"]
