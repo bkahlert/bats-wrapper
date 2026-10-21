@@ -8,9 +8,7 @@
 
 ### Changed
 
-- Upgrade Docker CLI to 29.9.2, recordr to 0.2.3, and dorny/test-reporter
-  to 3.2.0.
-- Upgrade the container and tracked `logr.sh` copy to Logr 0.6.5.
+*none*
 
 ### Deprecated
 
@@ -23,6 +21,14 @@
 ### Fixed
 
 *none*
+
+## [0.2.1] - 2026-10-21
+
+### Changed
+
+- Upgrade Docker CLI to 29.9.2, recordr to 0.2.4, and dorny/test-reporter
+  to 3.2.0.
+- Upgrade the container and tracked `logr.sh` copy to Logr 0.6.5.
 
 ## [0.2.0] - 2026-10-20
 
@@ -85,7 +91,9 @@
 
 - `batsw` self-contained wrapper to run Bats (Bash Automated Testing System) tests
 
-[unreleased]: https://github.com/bkahlert/bats-wrapper/compare/v0.2.0...HEAD
+[unreleased]: https://github.com/bkahlert/bats-wrapper/compare/v0.2.1...HEAD
+
+[0.2.1]: https://github.com/bkahlert/bats-wrapper/compare/v0.2.0...v0.2.1
 
 [0.2.0]: https://github.com/bkahlert/bats-wrapper/compare/v0.1.4...v0.2.0
 
