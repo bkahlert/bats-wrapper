@@ -12,9 +12,7 @@ setup() {
 @test "should not print logs by default" {
   bats_test <<<'run echo "foo"; assert_output "foo"' >test.bats
   image --stderr-only "$BUILD_TAG" .
-  assert_output --regexp '▶▶ TEST RUN
- ℹ working directory: .*
- ℹ bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing --no-tempdir-cleanup .'
+  assert_output --regexp $'▶▶ TEST RUN\n \xE2\x84\xB9\xEF\xB8\x8E working directory: .*\n \xE2\x84\xB9\xEF\xB8\x8E bats command line: bats --jobs [0-9]+ --no-parallelize-within-files --recursive --timing --no-tempdir-cleanup .'
 }
 
 @test "should print logs to STDERR with enabled DEBUG" {
