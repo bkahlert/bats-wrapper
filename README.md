@@ -91,26 +91,26 @@ docker run -it --rm \
 
 ### Wrapper
 
-The Bats Wrapper `batsw` needs nothing but a working Docker installation and either [`curl`](https://curl.se/download.html)
+The Bats Wrapper `batsw` requires Bash 4.2 or newer on `PATH`, a working Docker installation, and either [`curl`](https://curl.se/download.html)
 , [`wget`](http://wget.addictivecode.org/FrequentlyAskedQuestions.html#download),
 or [`wget2`](https://gitlab.com/gnuwget/wget2#downloading-and-building-from-tarball):
 
 #### curl
 
 ```shell
-curl -LfsS https://git.io/batsw | "$SHELL" -s -- [OPTIONS] TEST [TEST...]
+curl -LfsS https://git.io/batsw | bash -s -- [OPTIONS] TEST [TEST...]
 ```
 
 #### wget
 
 ```shell
-wget -qO- https://git.io/batsw | "$SHELL" -s -- [OPTIONS] TEST [TEST...]
+wget -qO- https://git.io/batsw | bash -s -- [OPTIONS] TEST [TEST...]
 ```
 
 #### wget2
 
 ```shell
-wget2 -nv -O- https://git.io/batsw | "$SHELL" -s -- [OPTIONS] TEST [TEST...]
+wget2 -nv -O- https://git.io/batsw | bash -s -- [OPTIONS] TEST [TEST...]
 ```
 
 ### GitHub Action
