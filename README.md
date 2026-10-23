@@ -46,8 +46,8 @@
   - `expect` for tests that require interaction
   - Check [wrapper.sh](rootfs/opt/bats/lib/wrapper/wrapper.sh) for all extensions.
 
-[![recorded terminal session demonstrating the Bats wrapper](docs/demo.svg "Bats Wrapper Demo")  
-*Bats Wrapper Demo*](../../raw/master/docs/demo.svg)
+[![recorded terminal session demonstrating the Bats wrapper](https://bkahlert.github.io/bats-wrapper/demo.svg "Bats Wrapper Demo")\
+*Bats Wrapper Demo*](https://bkahlert.github.io/bats-wrapper/demo.svg)
 
 ## Docker image
 
@@ -130,7 +130,7 @@ jobs:
 
       - name: Run Bats tests
         id: bats
-        uses: bkahlert/bats-wrapper@v0.2.1
+        uses: bkahlert/bats-wrapper@v0.2.2
         with:
           tests: test
 ```

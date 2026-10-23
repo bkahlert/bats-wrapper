@@ -22,6 +22,19 @@
 
 *none*
 
+## [0.2.2] - 2026-10-23
+
+### Changed
+
+- Publish the latest demo through GitHub Pages without generated SVG commits
+  or pull requests, using Recordr 0.2.6 and a locally built demo image.
+
+### Fixed
+
+- Preserve Docker socket access through its owning group without changing
+  socket ownership, while retaining the configured user and primary group.
+- Preserve the primary group for builds with distinct app user and group names.
+
 ## [0.2.1] - 2026-10-21
 
 ### Changed
@@ -91,7 +104,9 @@
 
 - `batsw` self-contained wrapper to run Bats (Bash Automated Testing System) tests
 
-[unreleased]: https://github.com/bkahlert/bats-wrapper/compare/v0.2.1...HEAD
+[unreleased]: https://github.com/bkahlert/bats-wrapper/compare/v0.2.2...HEAD
+
+[0.2.2]: https://github.com/bkahlert/bats-wrapper/compare/v0.2.1...v0.2.2
 
 [0.2.1]: https://github.com/bkahlert/bats-wrapper/compare/v0.2.0...v0.2.1
 
