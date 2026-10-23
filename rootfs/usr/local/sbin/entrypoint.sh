@@ -12,13 +12,15 @@ fix_std_permissions() {
 # Arguments:
 #   1 - name of the group
 #   2 - ID of the group
+#   3 - name of the user
 update_group_id() {
   local -r group=${1:?group missing}
   local -r -i gid=${2:?gid missing}
+  local -r user=${3:?user missing}
   [ "$gid" -eq "$gid" ] 2>/dev/null || logr error --code "$EX_DATAERR" "invalid group ID $gid"
-  if [ "$gid" ] && [ "$gid" != "$(id -g "${group}")" ]; then
+  if [ "$gid" ] && [ "$gid" != "$(id -g "${user}")" ]; then
     sed -i -e "s/^${group}:\([^:]*\):[0-9]*/${group}:\1:${gid}/" /etc/group
-    sed -i -e "s/^${group}:\([^:]*\):\([0-9]*\):[0-9]*/${group}:\1:\2:${gid}/" /etc/passwd
+    sed -i -e "s/^${user}:\([^:]*\):\([0-9]*\):[0-9]*/${user}:\1:\2:${gid}/" /etc/passwd
   fi
 }
 
@@ -169,19 +171,23 @@ fix_ssh_permissions() {
   done
 }
 
-# Get ownership; on Linux being Docker group member would be sufficient
-# but on macOS the mounted socket is always root:root.
+# Grants access to the mounted Docker socket through its owning group.
 # Arguments:
 #   1 - name of the user
-#   2 - name of the group
 fix_docker_sock_permissions() {
   local -r user="${1:?user missing}"
-  local -r group="${2:?group missing}"
   local -r docker_sock="/var/run/docker.sock"
+  local socket_gid socket_group
 
   [ -S "$docker_sock" ] || return 0
 
-  chown -R "$user:$group" /var/run/docker.sock
+  socket_gid=$(stat -Lc '%g' "$docker_sock") || return
+  socket_group=$(awk -F: -v gid="$socket_gid" '$3 == gid { print $1; exit }' /etc/group)
+  if [ ! "$socket_group" ]; then
+    socket_group="docker-socket-$socket_gid"
+    groupadd --gid "$socket_gid" "$socket_group" || return
+  fi
+  usermod --append --groups "$socket_group" "$user"
 }
 
 # Starts supervisord and waits for the given processes to start.
@@ -241,20 +247,20 @@ main() {
   [ "${DEBUG:-0}" = 0 ] || exec 3>&2
   {
     [ ! "${TZ-}" ] || logr task "updating timezone to $TZ" -- update_timezone "$TZ"
-    [ ! "${PGID-}" ] || logr task "updating ID of group $app_group to $PGID" -- update_group_id "$app_group" "$PGID"
+    [ ! "${PGID-}" ] || logr task "updating ID of group $app_group to $PGID" -- update_group_id "$app_group" "$PGID" "$app_user"
     [ ! "${PUID-}" ] || logr task "updating ID of user $app_user to $PUID" -- update_user_id "$app_user" "$PUID" || logr fail "failed to update ID of user $app_user to $PUID"
     logr task "fixing permissions of stdout and stderr" -- fix_std_permissions
     logr task "fixing permissions of TMPDIR directory for $app_user" -- fix_tmpdir_permissions "$app_user" "$app_group"
     logr task "fixing permissions of home directory for $app_user" -- fix_home_permissions "$app_user"
     logr task "fixing permissions of .ssh directory for $app_user" -- fix_ssh_permissions "$app_user" "$app_group"
-    logr task "fixing permissions of Docker socket $app_user" -- fix_docker_sock_permissions "$app_user" "$app_group"
+    logr task "fixing permissions of Docker socket $app_user" -- fix_docker_sock_permissions "$app_user"
 
     logr info "changing to $app_user:$app_group"
     esc cursor_show
   } >&3
   exec 3>&-
 
-  exec yasu "$app_user:$app_group" entrypoint_user.sh "$@"
+  exec yasu "$app_user" entrypoint_user.sh "$@"
 }
 
 main "$@"
