@@ -15,6 +15,6 @@ BATS
   run docker run --rm hello-world
   trace
 BATS
-  image -v /var/run/docker.sock:/var/run/docker.sock "$BUILD_TAG" .
+  image -v /var/run/docker.sock:/var/run/docker.sock:ro "$BUILD_TAG" .
   assert_line --partial 'Hello from Docker!'
 }
