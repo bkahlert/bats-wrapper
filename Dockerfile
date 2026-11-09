@@ -1,4 +1,4 @@
-FROM docker:29.9.2-cli-alpine3.24
+FROM docker:29.9.3-cli-alpine3.24
 
 # build time only options
 ARG BATS_CORE_VERSION=1.14.0
